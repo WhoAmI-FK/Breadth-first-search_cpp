@@ -37,10 +37,11 @@ public:
 	}
 	void read_map() {
 		int _y = 0;
+		char c;
+		c = getchar();
 		while (true) {
 			_line = new char[_sizeX];
 			int _count = 0;
-			char c;
 			fflush(stdin);
 			while ((c = getchar()) != '\n') {
 				if (_count == _sizeX) {
@@ -78,22 +79,77 @@ public:
 		delete[] _map;
 	}
 	void Start() {
-		std::pair<int, int> S,F;
+		int input;
 		std::cout << "Insert coordinates for S:\t";
-		std::cin >> S.first;
-		std::cin >> S.second;
+		std::cin >> input;
+		_start.first = input;
+		std::cin >> input;
+		_start.second = input;
 		std::cout << "\nInsert coordinates for F:\t";
-		std::cin >> F.first;
-		std::cin >> F.second;
+		std::cin >> input;
+		_finish.first = input;
+		std::cin >> input;
+		_finish.second = input;
+		std::cout << _finish.first << " " << _finish.second << std::endl;
 		std::cout << "\nInsert map:\n";
 		read_map();
 		system("pause");
 		system("cls");
-		std::cout << "starting location (marked S): (" << S.first << ", " << S.second << ")\n";
-		std::cout << "End location (marked F): (" << F.first << ", " << F.second << ")\n";
-		_dungeon_master.push(S);
+		std::cout << "starting location (marked S): (" << _start.first << ", " << _start.second << ")\n";
+		std::cout << "End location (marked F): (" << _finish.first << ", " << _finish.second << ")\n";
+		_dungeon_master.push(_start);
 		std::cout << "\n\nqueue: (" << _dungeon_master.front().first << ", " << _dungeon_master.front().second << ")\n\n";
 		draw_map();
+		begin_search();
+	}
+	void impossibleToReach() {
+		std::cout << "\n\nThere is no proper way to reach the finish point.\n\n";
+	}
+	void move(int x, int y) {
+		_map[y][x] = '.';
+		_dungeon_master.push(std::pair<int, int>(x, y));
+		std::cout << " (" << x << ", " << y << "), ";
+	}
+	void begin_search() {
+		while (true) {
+			if (_dungeon_master.empty()) {
+				impossibleToReach();
+				return;
+			}
+			else {
+				int x, y;
+				x = _dungeon_master.front().first;
+				y = _dungeon_master.front().second;
+				system("pause");
+				system("cls");
+				std::cout << "starting location (marked S): (" << _start.first << ", " << _start.second << ")\n";
+				std::cout << "End location (marked F): (" << _finish.first << ", " << _finish.second << ")\n";
+				std::cout << "\n\nqueue: ";
+				if (_map[y][x + 1] == ' ' || _map[y][x+1]=='F') {
+					move(x + 1, y);
+				}
+				if (_map[y][x - 1] == ' ' || _map[y][x-1]=='F') {
+					move(x-1, y);
+				} 
+				if (_map[y - 1][x] == ' ' || _map[y-1][x] == 'F') {
+					move(x, y-1);
+				}
+				if (_map[y + 1][x] == ' ' || _map[y+1][x]=='F') {
+					move(x,y+1);
+				}
+				if (_dungeon_master.front().first == _finish.first && _dungeon_master.front().second == _finish.second) {
+					system("pause");
+					system("cls");
+					draw_map();
+					std::cout << "\n\nSuccess.\n\n";
+					break;
+				}
+				_dungeon_master.pop();
+				std::cout << "\n\n";
+				draw_map();
+
+			}
+		}
 	}
 };
 
@@ -102,6 +158,5 @@ int main()
 {
 	MazeLabyrinth mzl;
 	mzl.Start();
-
 	return 0;
 }
