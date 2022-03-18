@@ -1,9 +1,7 @@
-﻿// Unfinished, requires rework
-#include <iostream>
+﻿#include <iostream>
 #include <queue>
 #include <utility>
 #include <cstdlib>
-#include "windows.h"
 
 class MazeLabyrinth {
 private:
@@ -25,15 +23,24 @@ public:
 	void setFinish(const std::pair<int,int>& Num) {
 		_finish = Num;
 	}
-	void resize(char* str, size_t& len,const size_t by) {
-		char* tmp = new char[len + by];
-		strcpy_s(tmp, len, str);
+	void resize(char*& str, size_t& len,const size_t by) {
+		char* tmp = new char[len + by+1];
+		for (int i = 0; i < len; ++i) {
+			tmp[i] = str[i];
+		}
+		tmp[len + by] = '\0';
 		len += by;
-		delete[] _line;
-		_line = tmp;
+		delete[] str;
+		str = tmp;
 	}
-	void enlargeMap(char** map, size_t& len) {
-		// need to complete
+	void enlargeMap(char**& map, size_t& len,const size_t by) {
+		char** tmp = new char* [len + by];
+		for (int i = 0; i < len; ++i) {
+			tmp[i] = map[i];
+		}
+		len += by;
+		delete[] map;
+		map = tmp;
 	}
 	void read_map() {
 		int _y = 0;
@@ -44,7 +51,7 @@ public:
 			int _count = 0;
 			fflush(stdin);
 			while ((c = getchar()) != '\n') {
-				if (_count == _sizeX) {
+				if (_count == _sizeX-1) {
 					resize(_line, _sizeX, 1);
 				}
 				_line[_count++] = c;
@@ -63,6 +70,9 @@ public:
 				}
 			}
 			_y++;
+			if (_y == _sizeY) {
+				enlargeMap(_map, _sizeY, 2);
+			}
 		}
 		_sizeY = _y+1;
 	}
